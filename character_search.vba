@@ -129,15 +129,28 @@ Sub search_character()
                             End If
                         End If
                         
+                        If (Not seriesList) <> -1 Then
+                            Dim maxLen As Long
+                            maxLen = 0
+                            For k = LBound(seriesList) To UBound(seriesList) Step 1
+                                If Len(seriesList(k)) > maxLen Then
+                                    linkText = seriesList(k)
+                                    maxLen = Len(seriesList(k))
+                                End If
+                            Next k
                         
-                        '[Goal]
-                        '
-                        'note the hyperlink
-                        With ThisWorkbook
-                            With .ActiveSheet
-                                .Hyperlinks.Add Anchor:=.Cells(lateralRow, i), Address:=filePath, SubAddress:=myAddress, ScreenTip:=Join(seriesList, "/"), TextToDisplay:=linkText
+                            '[Goal]
+                            '
+                            'note the hyperlink
+                            With ThisWorkbook
+                                With .ActiveSheet
+                                    .Hyperlinks.Add Anchor:=.Cells(lateralRow, i), Address:=filePath, SubAddress:=myAddress, ScreenTip:=Join(seriesList, "/"), TextToDisplay:=linkText
+                                    
+                                    'initialize the adjacent text list
+                                    Erase seriesList
+                                End With
                             End With
-                        End With
+                        End If
                     End If
                     
                     lateralRow = lateralRow + 1
