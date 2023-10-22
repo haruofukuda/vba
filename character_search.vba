@@ -1,9 +1,10 @@
 '
-' search_character executes procedures along the following
+' search_character Sub statement executes procedures along the following
 '
-'1st: create a keyword list retrieved from excel sheet
-'2nd: open respective excel book in "items" folder
-'3rd: search whether keyword exists per book and note the surrounding value and link if it finds
+'1st : create a keyword list retrieved from excel sheet
+'2nd : open respective excel book in "items" folder
+'3rd : search whether keyword exists per the book
+'Goal: note the surrounding value and link if it finds
 '
 Sub search_character()
 
