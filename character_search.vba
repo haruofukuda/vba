@@ -1,3 +1,20 @@
+'[constant value]
+'
+'start position of cell which keyword exists
+Private Const START_POSITION As String = "A2"
+'
+'search range of longitudinal row
+Private Const SEARCH_RANGE As String = "A:Z"
+'
+'pattern1 character
+Private Const PATTERN1 As String = "yes"
+'
+'pattern2 character
+Private Const PATTERN2 As String = "no"
+'
+'maximum count of offset
+Private Const OFFSET_COUNT As Integer = 5
+
 '
 ' search_character Sub statement executes procedures along the following
 '
@@ -8,20 +25,6 @@
 '
 Sub search_character()
 
-    '[constant value]
-    '
-    'start position of cell which keyword exists
-    Const START_POSITION As String = "A2"
-    '
-    'search range of longitudinal row
-    Const SEARCH_RANGE As String = "A:Z"
-    '
-    'pattern1 character
-    Const PATTERN1 As String = "yes"
-    '
-    'pattern2 character
-    Const PATTERN2 As String = "no"
-    
     range(START_POSITION).Select
     
     '[1st step]
@@ -82,7 +85,7 @@ Sub search_character()
             With .ActiveSheet
                 
                 Dim j As Long
-                For j = 1 To keyList.Count Step 1
+                For j = 1 To keyList.count Step 1
                 
                     Dim myObj As range
                     Set myObj = .range(SEARCH_RANGE).Find(keyList(j), LookAt:=xlPart)
@@ -90,9 +93,9 @@ Sub search_character()
                     'if keyword finds
                     If Not (myObj Is Nothing) Then
                     
-                        Dim myAddress As String, tooltip As String
+                        Dim myAddress As String, seriesList() As String, linkText As String
                         myAddress = .Name & "!" & myObj.Address
-                        tooltip = ""
+                        linkText = "link"
                         
                         'set adjacent cell value at bottom or right position
                         Dim bottomValue As Variant, rightValue As Variant
@@ -109,7 +112,7 @@ Sub search_character()
                         
                         Dim k As Long
                         If p1InBottom > 0 Or p1InRight > 0 Then
-                            tooltip = createTooltip(myObj, p1InBottom > 0)
+                            seriesList = adjacentList(myObj, p1InBottom > 0)
                         Else
                             matchCond = False
                         End If
@@ -122,14 +125,17 @@ Sub search_character()
                             p2InRight = InStr(rightValue, PATTERN2)
                             
                             If p2InBottom > 0 Or p2InRight > 0 Then
-                                tooltip = createTooltip(myObj, p2InBottom > 0)
+                                seriesList = adjacentList(myObj, p2InBottom > 0)
                             End If
                         End If
                         
+                        
+                        '[Goal]
+                        '
                         'note the hyperlink
                         With ThisWorkbook
                             With .ActiveSheet
-                                .Hyperlinks.Add Anchor:=.Cells(lateralRow, i), Address:=filePath, SubAddress:=myAddress, ScreenTip:=tooltip, TextToDisplay:="link"
+                                .Hyperlinks.Add Anchor:=.Cells(lateralRow, i), Address:=filePath, SubAddress:=myAddress, ScreenTip:=Join(seriesList, "/"), TextToDisplay:=linkText
                             End With
                         End With
                     End If
@@ -148,13 +154,10 @@ Sub search_character()
 End Sub
 
 
-Function createTooltip(object, Optional isBottom As Boolean = False) As String
-
-    'maximum count of offset
-    Const OFFSET_COUNT = 5
+Function adjacentList(object, Optional isBottom As Boolean = False) As String()
     
     Dim stringList(OFFSET_COUNT) As String
-    For k = 1 To OFFSET_COUNT Step 1
+    For k = 1 To OFFSET_COUNT - 1 Step 1
         
         With object
             If isBottom Then
@@ -165,5 +168,5 @@ Function createTooltip(object, Optional isBottom As Boolean = False) As String
         End With
     Next k
     
-    createTooltip = Join(stringList, "/")
+    adjacentList = stringList
 End Function
