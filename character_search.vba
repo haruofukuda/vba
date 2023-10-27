@@ -2,15 +2,10 @@
 '
 'start position of cell which keyword exists
 Private Const START_POSITION As String = "A2"
+Private Const START_POSITION2 As String = "A7"
 '
 'search range of longitudinal row
 Private Const SEARCH_RANGE As String = "A:Z"
-'
-'pattern1 character
-Private Const PATTERN1 As String = "yes"
-'
-'pattern2 character
-Private Const PATTERN2 As String = "no"
 '
 'maximum count of offset
 Private Const OFFSET_COUNT As Integer = 5
@@ -30,28 +25,13 @@ Sub search_character()
     '[1st step]
     '
     'create a keyword collection
-    Dim keyList As New Collection
+    Dim keyList
+    Set keyList = collectWords()
 
-    'get the cell value
-    Dim i As Long
-    i = 0
-    Dim cellValue As String
+    range(START_POSITION2).Select
 
-    With ActiveCell
-        cellValue = .Value
-
-        'extract the key
-        Do While cellValue <> ""
-
-            'add keyword
-            keyList.Add cellValue
-            
-            'get the cell value
-            i = i + 1
-            cellValue = .Offset(i, 0).Value
-        Loop
-    End With
-
+    Dim selectList
+    Set selectList = collectWords()
 
     '[2nd step]
     '
@@ -93,9 +73,11 @@ Sub search_character()
                     'if keyword finds
                     If Not (myObj Is Nothing) Then
                     
-                        Dim myAddress As String, seriesList() As String, linkText As String
+                        Dim myAddress As String, seriesList() As String, linkText As String, pattern1 As String, pattern2 As String
                         myAddress = .Name & "!" & myObj.Address
                         linkText = "link"
+                        pattern1 = selectList(1)
+                        pattern2 = selectList(2)
                         
                         'set adjacent cell value at bottom or right position
                         Dim bottomValue As Variant, rightValue As Variant
@@ -104,8 +86,8 @@ Sub search_character()
                         
                         'check whether the adjacent cell contains PATTERN1
                         Dim p1InBottom As Long, p1InRight As Long
-                        p1InBottom = InStr(bottomValue, PATTERN1)
-                        p1InRight = InStr(rightValue, PATTERN1)
+                        p1InBottom = InStr(bottomValue, pattern1)
+                        p1InRight = InStr(rightValue, pattern1)
                         
                         Dim matchCond As Boolean
                         matchCond = True
@@ -121,8 +103,8 @@ Sub search_character()
                         
                             'check with same as PATTERN1
                             Dim p2InBottom As Long, p2InRight As Long
-                            p2InBottom = InStr(bottomValue, PATTERN2)
-                            p2InRight = InStr(rightValue, PATTERN2)
+                            p2InBottom = InStr(bottomValue, pattern2)
+                            p2InRight = InStr(rightValue, pattern2)
                             
                             If p2InBottom > 0 Or p2InRight > 0 Then
                                 seriesList = adjacentList(myObj, p2InBottom > 0)
@@ -165,21 +147,3 @@ Sub search_character()
         i = i + 1
     Loop
 End Sub
-
-
-Function adjacentList(object, Optional isBottom As Boolean = False) As String()
-    
-    Dim stringList(OFFSET_COUNT) As String
-    For k = 1 To OFFSET_COUNT - 1 Step 1
-        
-        With object
-            If isBottom Then
-                stringList(k - 1) = .Offset(k, 0).Value
-            Else
-                stringList(k - 1) = .Offset(0, k).Value
-            End If
-        End With
-    Next k
-    
-    adjacentList = stringList
-End Function
