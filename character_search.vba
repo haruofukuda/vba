@@ -147,3 +147,48 @@ Sub search_character()
         i = i + 1
     Loop
 End Sub
+
+Function collectWords() As Collection
+
+    Dim arr As Collection
+    Set arr = New Collection
+    
+    'get the cell value
+    Dim i As Long
+    i = 0
+    Dim cellValue As String
+
+    With ActiveCell
+        cellValue = .Value
+
+        'extract the key
+        Do While cellValue <> ""
+
+            'add keyword
+            arr.Add cellValue
+            
+            'get the cell value
+            i = i + 1
+            cellValue = .Offset(i, 0).Value
+        Loop
+    End With
+    
+    Set collectWords = arr
+End Function
+
+Function adjacentList(object, Optional isBottom As Boolean = False) As String()
+    
+    Dim stringList(OFFSET_COUNT) As String
+    For k = 1 To OFFSET_COUNT - 1 Step 1
+        
+        With object
+            If isBottom Then
+                stringList(k - 1) = .Offset(k, 0).Value
+            Else
+                stringList(k - 1) = .Offset(0, k).Value
+            End If
+        End With
+    Next k
+    
+    adjacentList = stringList
+End Function
