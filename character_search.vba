@@ -43,6 +43,7 @@ Sub search_character()
     Dim fileName As String
     fileName = Dir(folderName & "\*")
     
+    Dim i As Integer
     i = 2
     Do While fileName <> ""
     
@@ -73,43 +74,10 @@ Sub search_character()
                     'if keyword finds
                     If Not (myObj Is Nothing) Then
                     
-                        Dim myAddress As String, seriesList() As String, linkText As String, pattern1 As String, pattern2 As String
+                        Dim myAddress As String, seriesList() As String, linkText As String
                         myAddress = .Name & "!" & myObj.Address
                         linkText = "link"
-                        pattern1 = selectList(1)
-                        pattern2 = selectList(2)
-                        
-                        'set adjacent cell value at bottom or right position
-                        Dim bottomValue As Variant, rightValue As Variant
-                        bottomValue = myObj.Offset(1, 0).Value
-                        rightValue = myObj.Offset(0, 1).Value
-                        
-                        'check whether the adjacent cell contains PATTERN1
-                        Dim p1InBottom As Long, p1InRight As Long
-                        p1InBottom = InStr(bottomValue, pattern1)
-                        p1InRight = InStr(rightValue, pattern1)
-                        
-                        Dim matchCond As Boolean
-                        matchCond = True
-                        
-                        Dim k As Long
-                        If p1InBottom > 0 Or p1InRight > 0 Then
-                            seriesList = adjacentList(myObj, p1InBottom > 0)
-                        Else
-                            matchCond = False
-                        End If
-                        
-                        If Not matchCond Then
-                        
-                            'check with same as PATTERN1
-                            Dim p2InBottom As Long, p2InRight As Long
-                            p2InBottom = InStr(bottomValue, pattern2)
-                            p2InRight = InStr(rightValue, pattern2)
-                            
-                            If p2InBottom > 0 Or p2InRight > 0 Then
-                                seriesList = adjacentList(myObj, p2InBottom > 0)
-                            End If
-                        End If
+                        seriesList = getSelection(myObj, selectList)
                         
                         If (Not seriesList) <> -1 Then
                             Dim maxLen As Long
@@ -147,6 +115,34 @@ Sub search_character()
         i = i + 1
     Loop
 End Sub
+
+Function getSelection(object, selectList) As String()
+
+    Dim seriesList() As String
+    
+    'set adjacent cell value at bottom or right position
+    Dim bottomValue As Variant, rightValue As Variant
+    bottomValue = object.Offset(1, 0).Value
+    rightValue = object.Offset(0, 1).Value
+    
+    Dim i As Integer
+    For i = 1 To selectList.count Step 1
+    
+        'check whether the adjacent cell contains PATTERN1
+        Dim inBottom As Long, inRight As Long
+        inBottom = InStr(bottomValue, selectList(i))
+        inRight = InStr(rightValue, selectList(i))
+        
+        Dim k As Long
+        If inBottom > 0 Or inRight > 0 Then
+            seriesList = adjacentList(object, inBottom > 0)
+
+            Exit For
+        End If
+    Next i
+    
+    getSelection = seriesList
+End Function
 
 Function collectWords() As Collection
 
