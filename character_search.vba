@@ -175,13 +175,27 @@ End Function
 Function adjacentList(object, Optional isBottom As Boolean = False) As String()
     
     Dim stringList(OFFSET_COUNT) As String
+    
     For k = 1 To OFFSET_COUNT - 1 Step 1
         
         With object
             If isBottom Then
                 stringList(k - 1) = .Offset(k, 0).Value
             Else
-                stringList(k - 1) = .Offset(0, k).Value
+                Dim r As String
+                r = .Offset(0, k).Value
+                
+                If r <> "" Then
+                    stringList(k - 1) = r
+                Else
+                    'if bottom is empty and combobox expands at bottom right
+                    Dim b As String, rb As String
+                    b = .Offset(k - 1, 0).Value
+                    rb = .Offset(k - 1, 1).Value
+                    If b = "" And rb <> "" Then
+                        stringList(k - 1) = rb
+                    End If
+                End If
             End If
         End With
     Next k
